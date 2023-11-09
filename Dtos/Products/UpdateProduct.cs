@@ -5,8 +5,9 @@ using System.Threading.Tasks;
 
 namespace ApiPrueba.Dtos.Products
 {
-    public class CreateProduct
+    public class UpdateProduct
     {
+        public int Id { get; set; }
         public string Name { get; set; }
         public string Code { get; set; }
         public string Category { get; set; }

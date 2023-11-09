@@ -1,3 +1,4 @@
+using ApiPrueba.Repositories.Products;
 using ApiPrueba.Repositories.Tokens;
 using ApiPrueba.Repositories.Users;
 using ApiPrueba.Services.Products;
@@ -13,6 +14,7 @@ namespace ApiPrueba.Extentions
         {
             services.AddScoped<ISecurityService, SecurityService>();
             services.AddScoped<IProductService, ProductService>();
+            services.AddScoped<IProductRepository, ProductRepository>();
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<ITokenRepository, TokenRepository>();

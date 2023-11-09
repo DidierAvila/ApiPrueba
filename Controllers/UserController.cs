@@ -52,7 +52,6 @@ namespace ApiPrueba.Controllers
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [Authorize(Roles = "Administrador")]
-
         public async Task<IActionResult> Update([FromRoute]int id, [FromBody] UpdateUser updateRequest, CancellationToken cancellationToken)
         {
             ReadUser response = await _UserService.Get(id, cancellationToken);

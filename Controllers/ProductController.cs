@@ -1,3 +1,4 @@
+using System.Net.Mime;
 using ApiPrueba.Dtos.Products;
 using ApiPrueba.Services.Products;
 using Microsoft.AspNetCore.Authorization;
@@ -16,6 +17,18 @@ namespace ApiPrueba.Controllers
         {
             _ProductService = productService;
             _logger = logger;
+        }
+
+        [HttpPost()]
+        [Consumes(MediaTypeNames.Application.Json)]
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [Authorize(Roles = "Cajero")]
+        public async Task<IActionResult> Create([FromBody] CreateProduct createRequest, CancellationToken cancellationToken)
+        {
+            _logger.LogInformation("Create");
+            ReadProduct result = await _ProductService.Create(createRequest, cancellationToken);
+            return Ok("Created Product");
         }
 
         [HttpGet("{id}")]
@@ -47,6 +60,30 @@ namespace ApiPrueba.Controllers
             else
             {
                 return NotFound("Not Found Products");
+            }
+        }
+
+        [HttpPut("{id}")]
+        [Consumes(MediaTypeNames.Application.Json)]
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [Authorize(Roles = "Cajero")]
+        public async Task<IActionResult> Update([FromRoute]int id, [FromBody] UpdateProduct updateRequest, CancellationToken cancellationToken)
+        {
+            ReadProduct response = await _ProductService.Get(id, cancellationToken);
+            if (response == null)
+            {
+                return NotFound("Not found product");
+            }
+            else
+            {
+                if (updateRequest.Id != id)
+                {
+                    return BadRequest("Product Id and id doesn't match");
+                }
+
+                response = await _ProductService.Update(updateRequest, cancellationToken);
+                return Ok("Product updated.");
             }
         }
     }

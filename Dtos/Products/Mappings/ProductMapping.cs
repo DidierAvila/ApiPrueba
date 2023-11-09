@@ -8,6 +8,8 @@ namespace ApiPrueba.Dtos.Products.Mappings
         public ProductMapping()
         {
             CreateMap<Product, ReadProduct>();
+            CreateMap<ReadProduct, Product>();
+            CreateMap<UpdateProduct, Product>();
         }
     }
 }
