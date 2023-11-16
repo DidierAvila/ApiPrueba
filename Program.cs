@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 using ProyectoToken.Models;
 
 using System.Text;
@@ -16,7 +17,32 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+
+builder.Services.AddSwaggerGen(options =>
+           {
+               options.SwaggerDoc("v1", new OpenApiInfo { Title = "Api prueba", Version = "v1" });
+               options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+               {
+                   In = ParameterLocation.Header,
+                   Description = "Ingresa el Token",
+                   Name = "Authorization",
+                   Type = SecuritySchemeType.Http,
+                   BearerFormat = "JWT",
+                   Scheme = "bearer"
+               });
+               options.AddSecurityRequirement(new OpenApiSecurityRequirement{
+                {
+                    new OpenApiSecurityScheme{
+                        Reference = new OpenApiReference {
+                            Type = ReferenceType.SecurityScheme,
+                            Id = "Bearer"
+                        }
+                    },
+                    Array.Empty<string>()
+                }
+               });
+           });
+
 builder.Services.AddAutoMapper(typeof(Program));
 
 builder.Services.AddCors();
@@ -58,12 +84,21 @@ var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
+    app.UseDeveloperExceptionPage();
     app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseSwaggerUI(options => options.SwaggerEndpoint("/swagger/v1/swagger.json", "api v1"));
 }
-
+app.UseSwaggerUI(options =>
+    {
+        options.SwaggerEndpoint("/swagger/v1/swagger.json", "api v1");
+        options.OAuthClientId(Environment.GetEnvironmentVariable("SWAGGER_CLIENT_ID"));
+        options.OAuthClientSecret(Environment.GetEnvironmentVariable("SWAGGER_CLIENT_SECRET"));
+        options.OAuthAppName("API Investigacion - Swagger");
+        options.OAuthUsePkce();
+    }
+    );
+app.UseRouting();
 app.UseAuthentication();
-
 app.UseAuthorization();
 app.UseCors(options => options.WithOrigins(
                 "http://localhost:3000",
