@@ -1,28 +1,18 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using ApiPrueba.DbContexts;
 using ApiPrueba.Dtos.Products;
 using ApiPrueba.Models;
 using ApiPrueba.Repositories.Products;
 using AutoMapper;
-using Microsoft.EntityFrameworkCore;
 
 
 namespace ApiPrueba.Services.Products
 {
     public class ProductService : IProductService
     {
-        private readonly PruebasDbContext _context;
-        private readonly IConfiguration _configuration;
         private readonly IMapper _mapper;
         private readonly IProductRepository _ProductRepository;
 
-        public ProductService(PruebasDbContext context, IConfiguration configuration, IMapper mapper, IProductRepository productRepository)
+        public ProductService(IMapper mapper, IProductRepository productRepository)
         {
-            _context = context;
-            _configuration = configuration;
             _mapper = mapper;
             _ProductRepository = productRepository;
         }
@@ -30,7 +20,7 @@ namespace ApiPrueba.Services.Products
         public async Task<ReadProduct> Create(CreateProduct createUser, CancellationToken cancellationToken)
         {
             Product EntityUser = _mapper.Map<CreateProduct, Product>(createUser);
-            await _ProductRepository.Create(EntityUser);
+            EntityUser = await _ProductRepository.Create(EntityUser, cancellationToken);
             ReadProduct dto = _mapper.Map<Product, ReadProduct>(EntityUser);
 
             return dto;
@@ -38,25 +28,20 @@ namespace ApiPrueba.Services.Products
 
         public async Task<ReadProduct> Get(int id, CancellationToken cancellationToken)
         {
-            Product CurrentProduct = await _context.Products.Where(x => x.Id == id).FirstOrDefaultAsync(cancellationToken);
+            Product CurrentProduct = await _ProductRepository.GetByID(id, cancellationToken);
             if (CurrentProduct != null)
             {
-                ReadProduct readProduct = new();
-                var dto = _mapper.Map<Product, ReadProduct>(CurrentProduct);
-
-                return dto;
+                return _mapper.Map<Product, ReadProduct>(CurrentProduct);
             }
             return null;
         }
 
         public async Task<ICollection<ReadProduct>> GetAll(CancellationToken cancellationToken)
         {
-            ICollection<ReadProduct> readProducts = new List<ReadProduct>();
-
-            List<Product> CurrentProducts = await _context.Products.ToListAsync(cancellationToken);
+            IEnumerable<Product> CurrentProducts = await _ProductRepository.GetAll(cancellationToken);
             if (CurrentProducts != null)
             {
-                var dto = _mapper.Map<List<Product>, ICollection<ReadProduct>>(CurrentProducts);
+                var dto = _mapper.Map<IEnumerable<Product>, ICollection<ReadProduct>>(CurrentProducts);
                 return dto;
             }
             return null;
@@ -64,9 +49,9 @@ namespace ApiPrueba.Services.Products
 
         public async Task<ReadProduct> Update(UpdateProduct updateRequest, CancellationToken cancellationToken)
         {
-            Product entity = await _ProductRepository.GetById(updateRequest.Id);
+            Product entity = await _ProductRepository.GetByID(updateRequest.Id, cancellationToken);
             entity = _mapper.Map<UpdateProduct, Product>(updateRequest, entity);
-            await _ProductRepository.Update(entity.Id, entity);
+            await _ProductRepository.Update(entity, cancellationToken);
 
             ReadProduct dto = _mapper.Map<Product, ReadProduct>(entity);
             return dto;

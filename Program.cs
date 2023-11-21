@@ -3,11 +3,8 @@ using ApiPrueba.Extentions;
 using ApiPrueba.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using ProyectoToken.Models;
-
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -52,7 +49,6 @@ builder.Services.AddDbContext<PruebasDbContext>(opt =>
     opt.UseSqlServer(builder.Configuration.GetConnectionString("cadenaSql"));
 });
 
-builder.Services.AddScoped<IAutorizacionService, AutorizacionService>();
 builder.Services.AddApiPruebaExtention();
 
 var key = builder.Configuration.GetValue<string>("JwtSettings:key");

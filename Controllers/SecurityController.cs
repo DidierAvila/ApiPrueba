@@ -1,6 +1,5 @@
 using ApiPrueba.Dtos.Users;
 using ApiPrueba.Services.Security;
-using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ApiPrueba.Controllers

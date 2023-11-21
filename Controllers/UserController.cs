@@ -3,6 +3,7 @@ using ApiPrueba.Dtos.Users;
 using ApiPrueba.Services.Users;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using AutoWrapper.Wrappers;
 
 namespace ApiPrueba.Controllers
 {
@@ -28,7 +29,7 @@ namespace ApiPrueba.Controllers
         {
             _logger.LogInformation("Create");
             ReadUser result = await _UserService.Create(createRequest, cancellationToken);
-            return Ok("Created User");
+            return Ok(new ApiResponse("User create", result, 200));
         }
 
         [HttpGet("{id}")]
@@ -67,7 +68,8 @@ namespace ApiPrueba.Controllers
                 }
 
                 response = await _UserService.Update(updateRequest, cancellationToken);
-                return Ok("User updated.");
+                return Ok(new ApiResponse("User updated", response, 200));
+
             }
         }
 

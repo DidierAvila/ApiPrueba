@@ -1,11 +1,14 @@
+using System.Linq.Expressions;
+
 namespace ApiPrueba.Repositories
 {
     public interface IRepositoryBase<TEntity> where TEntity : class
     {
-        IQueryable<TEntity> GetAll();
-        Task<TEntity> GetById(int id);
-        Task Create(TEntity entity);
-        Task Update(int id, TEntity entity);
-        Task Delete(int id);
+        Task<IEnumerable<TEntity>> GetAll(CancellationToken cancellationToken);
+        Task<TEntity> GetByID(int? id, CancellationToken cancellationToken);
+        Task<TEntity> Create(TEntity entity, CancellationToken cancellationToken);
+        Task<TEntity> Delete(int id, CancellationToken cancellationToken);
+        Task Update(TEntity entity, CancellationToken cancellationToken);
+        Task<TEntity> Find(Expression<Func<TEntity, bool>> expr, CancellationToken cancellationToken);
     }
 }

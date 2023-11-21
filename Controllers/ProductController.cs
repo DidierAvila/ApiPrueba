@@ -1,6 +1,7 @@
 using System.Net.Mime;
 using ApiPrueba.Dtos.Products;
 using ApiPrueba.Services.Products;
+using AutoWrapper.Wrappers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -28,12 +29,12 @@ namespace ApiPrueba.Controllers
         {
             _logger.LogInformation("Create");
             ReadProduct result = await _ProductService.Create(createRequest, cancellationToken);
-            return Ok("Created Product");
+            return Ok(new ApiResponse("Created Product", result, 200));
         }
 
         [HttpGet("{id}")]
         [Authorize(Roles = "Cajero")]
-        public async Task<IActionResult> Read([FromRoute]int id, CancellationToken cancellationToken)
+        public async Task<IActionResult> Read([FromRoute] int id, CancellationToken cancellationToken)
         {
             _logger.LogInformation("Read");
             ReadProduct response = await _ProductService.Get(id, cancellationToken);
@@ -68,7 +69,7 @@ namespace ApiPrueba.Controllers
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [Authorize(Roles = "Cajero")]
-        public async Task<IActionResult> Update([FromRoute]int id, [FromBody] UpdateProduct updateRequest, CancellationToken cancellationToken)
+        public async Task<IActionResult> Update([FromRoute] int id, [FromBody] UpdateProduct updateRequest, CancellationToken cancellationToken)
         {
             ReadProduct response = await _ProductService.Get(id, cancellationToken);
             if (response == null)
@@ -83,7 +84,7 @@ namespace ApiPrueba.Controllers
                 }
 
                 response = await _ProductService.Update(updateRequest, cancellationToken);
-                return Ok("Product updated.");
+                return Ok(new ApiResponse("Created updated", response, 200));
             }
         }
     }
